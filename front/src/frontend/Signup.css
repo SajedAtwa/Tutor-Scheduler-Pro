@@ -1,0 +1,147 @@
+/* Signup.css */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.student-signup-container {
+    background-color: #e0f7fa; /* Light teal background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.signup-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    color: #00796b; /* Dark teal color */
+    font-weight: bold;
+}
+
+.signup-box {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    transform: scale(1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.signup-box:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.signup-input,
+.signup-button {
+    padding: 0.75rem;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.signup-input:focus,
+.signup-button:focus {
+    border-color: #00796b; /* Dark teal border on focus */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.5); /* Glow effect on focus */
+}
+
+.signup-input {
+    background-color: #f1f8e9; /* Light green background for inputs */
+}
+
+.signup-button {
+    background-color: #00796b; /* Dark teal background */
+    color: #ffffff;
+}
+
+.signup-button:hover {
+    filter: brightness(90%);
+}
+
+.signup-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.absolute-button {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.absolute-button:hover .eye-icon {
+    color: #00796b;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+}
+
+.signup-input {
+    flex: 1;
+    padding-right: 2.5rem;
+}
+
+.input-group-addon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer; /* Add cursor pointer to ensure it's clickable */
+}
+
+.toggle-password {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.2rem; /* Ensure the icon size is appropriate */
+    color: #00796b; /* Set a visible color for the icon */
+}
+
+.toggle-password:hover {
+    color: #004d40; /* Slightly darker color on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .signup-box {
+        padding: 1rem;
+    }
+
+    .signup-title {
+        font-size: 1.5rem;
+    }
+
+    .signup-button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+

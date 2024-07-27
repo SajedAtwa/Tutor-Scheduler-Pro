@@ -1,0 +1,162 @@
+/* Ensure body and html are set to scrollable */
+body, html {
+  overflow: auto;
+  height: 100%;
+}
+
+/* Main container adjustments */
+.home-container {
+width: 100%;
+display: flex;
+overflow: auto;  /* Allow main container to scroll */
+min-height: 100vh;
+align-items: center;
+flex-direction: column;
+}
+
+.home-header {
+width: 100%;
+display: flex;
+z-index: 100;
+position: fixed;
+align-items: center;
+flex-direction: column;
+background-color: var(--dl-color-gray-white);
+overflow: visible; /* Ensure header can handle overflow */
+}
+
+/* Prevent containers from blocking scroll */
+.home-container, .home-header, .home-mobile-menu1 {
+  overflow: visible;
+}
+
+/* Adjusting the padding and margin between sections */
+.goals-section, .features-section {
+  text-align: center;
+  margin: 1rem 0;  /* Reduced margin */
+  width: 100%;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 2rem 1rem;  /* Adjust the padding if needed */
+  width: 200%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;  /* Reduced bottom margin */
+  margin-top: 64px;
+}
+
+/* If there are other sections like footer or other divs, adjust similarly */
+.footer-section {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 1rem;  /* Reduced top margin */
+  width: 100%;
+  background: #a0dce9;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Existing CSS from your file */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  height: 100%;
+  overflow: auto; /* Allow scrolling if content exceeds viewport */
+}
+
+html {
+  height: 100%; /* Ensure the html element also takes full height */
+}
+
+.about-us-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  width: 100%;
+  min-height: 100vh; /* Ensure the container takes full viewport height */
+}
+
+.hero-section {
+  background: linear-gradient(to right, #ffffff, #0083b0);
+  color: white;
+  text-align: center;
+  padding: 3rem 1rem;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero-section p {
+  font-size: 1.25rem;
+}
+
+.goals-section, .features-section {
+  text-align: center;
+  margin: 2rem 0;
+  width: 100%;
+}
+
+.goals-section h2, .features-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.goal-cards, .feature-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.goal-card, .feature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: calc(33% - 2rem);
+  max-width: 300px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.goal-card:hover, .feature-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.goal-icon {
+  font-size: 3rem;
+  color: #0083b0;
+  margin-bottom: 1rem;
+}
+
+.goal-card h3, .feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-section {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+  background: #a0dce9;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.aboutcheck {
+  width: 120%;
+}

@@ -1,0 +1,43 @@
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f8ff;
+}
+
+.message-box {
+  text-align: center;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  background: linear-gradient(145deg, #ace0f9, #ffffff);
+}
+
+h1 {
+  color: #50A2A7;
+  font-family: 'Arial', sans-serif;
+  margin-bottom: 20px;
+}
+
+p {
+  color: #333333;
+  font-family: 'Verdana', sans-serif;
+  font-size: 18px;
+}
+
+button {
+  display: block;
+  margin: 20px auto; /* Center the button horizontally */
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #50A2A7;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #50A2A7;
+}

@@ -1,0 +1,118 @@
+/* Signup.css */
+.signup-container {
+    background-color: #f3f4f6; /* Light gray background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Full screen height */
+}
+
+.signup-title {
+    text-align: center;
+    margin-bottom: 2rem; /* Spacing before the signup box starts */
+    font-size: 2rem; /* Larger font size for title */
+    color: #333; /* Dark gray color for the text */
+    font-weight: bold;
+}
+
+.signup-box {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Max width for the signup box */
+    transform: scale(1); /* Default scale */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    text-align: center; /* Center the content inside the signup box */
+}
+
+.signup-box:hover {
+    transform: scale(1.02); /* Slightly larger scale on hover */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Larger shadow for depth effect */
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Spacing between form elements */
+    align-items: center; /* Center form elements horizontally */
+}
+
+.signup-input,
+.signup-button {
+    padding: 0.75rem;
+    border: 2px solid transparent; /* Make border transparent by default */
+    border-radius: 0.5rem; /* Rounded borders for input and buttons */
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    width: 100%; /* Make inputs and buttons fill the container */
+    max-width: 300px; /* Limit the width for better readability */
+}
+
+.signup-input:focus,
+.signup-button:focus {
+    border-color: #3b82f6; /* Blue border on focus */
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Glow effect on focus */
+}
+
+.signup-input {
+    background-color: #edf2f7; /* Lighter background for inputs */
+}
+
+.signup-button {
+    background-color: #10b981; /* Green background for the signup action */
+    color: #ffffff; /* White text */
+    margin-top: 1rem; /* Spacing above the signup button */
+}
+
+.signup-button:hover {
+    filter: brightness(90%); /* Darken button color on hover */
+}
+
+.signup-label {
+    display: block;
+    margin-bottom: 0.5rem; /* Spacing between label and input */
+    font-weight: 600; /* Bold font for labels */
+}
+
+.absolute-button {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%); /* Center the button vertically */
+    background: none; /* No background for icon button */
+    border: none; /* No border for icon button */
+    cursor: pointer; /* Pointer cursor for clickable icon */
+}
+
+.absolute-button:hover .eye-icon {
+    color: #3b82f6; /* Change icon color on hover */
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+}
+
+.signup-input {
+    flex: 1;
+    padding-right: 2.5rem; /* Add padding to prevent text from going under the icon */
+}
+
+.input-group-addon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+}
+
+.toggle-password {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}

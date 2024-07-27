@@ -1,0 +1,68 @@
+.New_Class {
+  text-align: center;
+  margin-top: 50px;
+  color: #333;
+  background-color: #fff;
+  padding: 20px; /* Add padding inside the card */
+  border: 1px solid #ddd; /* Light grey border */
+  border-radius: 10px; /* Rounded corners for the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a 3D effect */
+  display: inline-block; /* Ensures the card only takes as much width as needed */
+}
+
+form {
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: inline-block;
+  text-align: left;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+label>select,
+label>input {
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: calc(100% - 20px);
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #A0B9C6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  text-align: center;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #C1C1C1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button[type="submit"] {
+  text-align: left;
+}
+.create-class-header{
+  color: #8EB8E5;
+}

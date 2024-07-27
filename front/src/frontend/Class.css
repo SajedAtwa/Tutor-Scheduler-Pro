@@ -1,0 +1,48 @@
+.Schedule {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  form {
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    display: inline-block;
+    text-align: left;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  label > select,
+  label > input {
+    margin-left: 10px;
+  }
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* This line is optional, only include it if you also want vertical centering */
+  }
+  button {
+    padding: 10px 20px;
+    background-color: #C1C1C1; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition for background color */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  button:hover {
+    background-color: #C1C1C1; /* Darker shade of green on hover */
+  }
+  
+  .class-form-title{
+    color: #8EB8E5;
+  }
