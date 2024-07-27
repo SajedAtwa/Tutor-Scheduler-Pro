@@ -78,7 +78,7 @@ function Provider() {
         const formattedEndTime = `${date.split('-').join('-')} ${endTime}:00`;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/providers/create`, {
+            const response = await fetch(`${baseURL}api/providers/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ function Provider() {
                             <span className="home-nav">Contact Us</span>
                         </a>
                     </nav>
-                    <button className="home-login buttonFlat" onClick={() => navigate('/login')}>Logout</button>
+                    <button className="home-login buttonFlat" onClick={() => navigate('/entry')}>Logout</button>
                 </div>
             </header>
             <div className="New_Class">
@@ -200,6 +200,8 @@ function Provider() {
                 </form>
             </div>
         </div>
+
+        
     );
 }
 
