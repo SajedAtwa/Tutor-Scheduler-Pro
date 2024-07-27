@@ -31,7 +31,7 @@ function Provider() {
     const [date, setDate] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
-    const baseURL = 'https://csc-318-project.vercel.app/';
+    const baseURL = 'https://tutor-scheduler-pro.vercel.app/';
     useEffect(() => {
         const types = {
             'Math': ['Calc 1', 'Calc 2', 'Calc 3', 'Linear Algebra'],

@@ -8,7 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const baseURL = 'https://csc-318-project.vercel.app/';
+  const baseURL = 'https://tutor-scheduler-pro.vercel.app/';
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
