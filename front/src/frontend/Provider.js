@@ -198,9 +198,6 @@ function Provider() {
                         <button type="submit">Create Class</button>
                     </div>
                 </form>
-                <div className="container">
-                    <button onClick={handleExcel}>Download Reporting</button>
-                </div>
             </div>
         </div>
     );
