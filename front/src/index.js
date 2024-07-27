@@ -13,12 +13,9 @@ import NotFound from './frontend/not-found';
 import Login from './frontend/Login'; // Import the Login component, adjust the path as necessary
 import Signup from './frontend/Signup';
 import Dashboard from './frontend/Dashboard';
-import FurssanFC from './frontend/pages/FurssanFC';
-import HomeFlavors from './frontend/pages/HomeFlavors';
 import Schedule from './frontend/pages/Schedule';
 import Billing from './frontend/Billing';
 import Provider from './frontend/Provider';
-import Financefuel from './frontend/pages/Financefuel';
 import SignupP from './frontend/SignupP';
 import LoginP from './frontend/LoginP';
 import Class from './frontend/Class';
@@ -54,12 +51,9 @@ const App = () => {
         <Route path="*" element={<NotFound onLogin={handleSignup} onNavigateToSignup={navigateToLogin}/>} />
         <Route path="/home" element={<Navigate replace to="/" />} />
         <Route path="/dashboard" element={<Dashboard/>} />
-        <Route path="/FurssanFC" element={<FurssanFC/>} />
-        <Route path="/HomeFlavors" element={<HomeFlavors/>} />
         <Route path="/Schedule" element={<Schedule/>} />
         <Route path="/Billing" element={<Billing/>} />
         <Route path="/Provider" element={<Provider/>} />
-        <Route path="/Financefuel" element={<Financefuel/>} />
         <Route path="/signupP" element={<SignupP/>}/>
         <Route path="/loginP" element={<LoginP onLogin={handleLogin} onNavigateToSignup={navigateToSignup} />} />
         <Route path="/Class" element={<Class/>}/>
