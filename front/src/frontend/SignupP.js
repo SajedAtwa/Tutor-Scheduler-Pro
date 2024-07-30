@@ -28,6 +28,7 @@ const SignupP = () => {
       
       if (response.ok) {
         console.log('Signup successful:', data);
+        localStorage.setItem('token', data.token);
         navigate('/Class');
       } else {
         console.log('Signup failed:', data.message);
