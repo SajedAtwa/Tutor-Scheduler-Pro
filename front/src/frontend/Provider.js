@@ -149,7 +149,7 @@ function Provider() {
                         </select>
                     </label>
                     <label>
-                        Class Name:
+                        Course ID:
                         <input type="text"
                             value={selectedClassName}
                             onChange={e => setSelectedClassName(e.target.value)}
