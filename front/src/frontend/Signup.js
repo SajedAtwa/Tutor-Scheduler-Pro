@@ -29,7 +29,7 @@ const Signup = () => {
       if (response.ok) {
         console.log('Signup successful:', data);
         localStorage.setItem('token', data.token);
-        navigate('/dashboard');
+        navigate('/login');
       } else {
         console.log('Signup failed:', data.message);
         const errorMessage = data.message || 'Failed to sign up';
