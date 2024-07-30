@@ -113,7 +113,7 @@ function Schedule() {
           <label>
             Subject:
             <select value={selectedService} onChange={e => setSelectedService(e.target.value)}>
-              <option value="">Select a Service</option>
+              <option value="">Select a Subject</option>
               {services.map(service => (
                 <option key={service} value={service}>{service}</option>
               ))}

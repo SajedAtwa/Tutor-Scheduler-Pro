@@ -131,9 +131,9 @@ function Provider() {
                 <h1 className='create-class-header'>Create a Class</h1>
                 <form onSubmit={handleSubmit}>
                     <label>
-                        Service:
+                        Subjects:
                         <select value={selectedService} onChange={e => setSelectedService(e.target.value)}>
-                            <option value="">Select a Service</option>
+                            <option value="">Select a Subject</option>
                             {services.map(service => (
                                 <option key={service.id} value={service.service_type}>{service.service_type}</option>
                             ))}
