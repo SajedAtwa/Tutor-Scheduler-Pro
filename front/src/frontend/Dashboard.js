@@ -62,7 +62,7 @@ const Dashboard = () => {
               </a>
             </nav>
             <div className="home-buttons">
-                      <button className="home-login buttonFlat" onClick={() => navigate('/login')}>Logout</button>
+                      <button className="home-login buttonFlat" onClick={() => navigate('/entry')}>Logout</button>
                   </div>
           </div>
           <div data-thq="thq-burger-menu" className="home-burger-menu">

@@ -19,7 +19,7 @@ function Class() {
               <span className="home-nav">Contact Us</span>
             </a>
           </nav>
-          <button className="home-login buttonFlat" onClick={() => navigate('/login')}>Logout</button>
+          <button className="home-login buttonFlat" onClick={() => navigate('/entry')}>Logout</button>
         </div>
       </header>
     <div className="Schedule">
