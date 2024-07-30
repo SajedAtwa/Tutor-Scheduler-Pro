@@ -19,7 +19,7 @@ const Tutor = () => {
           <div data-thq="thq-navbar-nav" className="home-desktop-menu">
             <nav className="home-links">
               <span className="home-nav" onClick={() => navigate('/')}>Home</span>
-              <span className="home-nav bodySmall" onClick={() => navigate('/tutor')}>Service</span>
+              <span className="home-nav bodySmall" onClick={() => navigate('/tutor')}>About Us</span>
               <a
                 href="https://www.youtube.com/watch?v=xvFZjo5PgG0"
                 target="_blank"
