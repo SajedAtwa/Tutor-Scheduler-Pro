@@ -12,7 +12,7 @@ const Signup = () => {
   const [phone_number, setPhoneNumber] = useState(''); // New state for phone number
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const baseURL = 'https://tutor-scheduler-pro.vercel.app/';
+  const baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001/";
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
