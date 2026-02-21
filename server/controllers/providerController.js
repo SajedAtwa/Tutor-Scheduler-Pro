@@ -196,6 +196,30 @@ const providerController = {
           });
         }
     },
+
+    // List all addresses (for provider to choose from)
+    listAddresses: async (req, res) => {
+    try {
+        const sql = `
+        SELECT id, address_one, address_two, city, state, zipcode
+        FROM address
+        ORDER BY id DESC
+        `;
+
+        const [rows] = await db.execute(sql);
+
+        return res.json({
+        success: true,
+        data: rows
+        });
+    } catch (error) {
+        console.error("Error fetching addresses:", error);
+        return res.status(500).json({
+        success: false,
+        message: "Server error while fetching addresses"
+        });
+    }
+    },
    
     // Takes the service ID from selectClassType, address ID from enterAddressDetails, and other class details
     // Saves the complete class information to the class table

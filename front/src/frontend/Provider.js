@@ -17,15 +17,8 @@ function Provider() {
 
   const [classTypes, setClassTypes] = useState([]);
 
-  const [addressTypes] = useState([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-  ]);
-
-  const [selectedAddress, setSelectedAddress] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(""); // store address id as string
   const [selectedService, setSelectedService] = useState('');
   const [selectedClassType, setSelectedClassType] = useState('');
   const [selectedClassName, setSelectedClassName] = useState('');
@@ -37,6 +30,32 @@ function Provider() {
   const baseURLRaw = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
   const baseURL = baseURLRaw.endsWith('/') ? baseURLRaw : `${baseURLRaw}/`;
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`${baseURL}api/providers/addresses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setAddresses(data.data || []);
+        } else {
+          console.error("Failed to load addresses:", data);
+          setAddresses([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch addresses:", err);
+        setAddresses([]);
+      }
+    })();
+  }, [baseURL]);
   useEffect(() => {
     const types = {
       'Math': ['Calc 1', 'Calc 2', 'Calc 3', 'Linear Algebra'],
@@ -70,7 +89,7 @@ function Provider() {
         body: JSON.stringify({
           serviceType: selectedService,
           classType: selectedClassType,
-          addressId: selectedAddress,
+          addressId: Number(selectedAddress),
           className: selectedClassName,
           cost: classCost,
           startTime: formattedStartTime,
@@ -157,13 +176,21 @@ function Provider() {
 
           <label>
             Address ID:
-            <select value={selectedAddress} onChange={e => setSelectedAddress(e.target.value)}>
-              <option value="">Select a address id</option>
-              {addressTypes.map(ct => (
-                <option key={ct} value={ct}>{ct}</option>
+            <select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
+              <option value="">Select an address</option>
+              {addresses.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.id} — {a.address_one}, {a.city}, {a.state} {a.zipcode}
+                </option>
               ))}
             </select>
           </label>
+
+          {addresses.length === 0 && (
+            <p style={{ color: "white", marginTop: "8px" }}>
+              No addresses found. Create one first (or seed the DB).
+            </p>
+          )}
 
           <label>
             Date:
