@@ -71,7 +71,6 @@ exports.loginCustomer = async (req, res) => {
 };
 
 
-//               return res.status(500).json({ message: "Database error", error: err });
 
 exports.getClassOptions = async (req, res) => {
       const { serviceType } = req.params;

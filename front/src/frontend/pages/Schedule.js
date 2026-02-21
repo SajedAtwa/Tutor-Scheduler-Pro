@@ -25,7 +25,7 @@ function Schedule() {
   const [zipcode, setZipcode] = useState('');
 
   const token = localStorage.getItem('token');
-  const baseURL = 'https://tutor-scheduler-pro.vercel.app/';
+  const baseURL = process.env.REACT_APP_API_BASE_URL;
   useEffect(() => {
     if (selectedService) {
       fetch(`${baseURL}api/users/classes/${encodeURIComponent(selectedService)}`, {
