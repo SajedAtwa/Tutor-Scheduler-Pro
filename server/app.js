@@ -1,40 +1,64 @@
-require('dotenv').config(); 
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const customerRoutes = require('./routes/customerRoutes');
-const providerRoutes = require('./routes/providerRoutes');
-const reportRoute = require('./routes/reportRoute');
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+
+const customerRoutes = require("./routes/customerRoutes");
+const providerRoutes = require("./routes/providerRoutes");
+const reportRoute = require("./routes/reportRoute");
+
+const { errorHandler, notFound } = require("./middlewares/errorMiddleware");
 
 const app = express();
 
-app.use(express.json()); // For parsing application/json
-app.use(cors()); // Enables CORS
+/* ==============================
+   Middleware
+================================ */
+app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "*", // restrict later if needed
+    credentials: true,
+  })
+);
 
-app.use('/api/users', customerRoutes);
-app.use('/api/providers', providerRoutes);
-app.use('/api/report', reportRoute);
+/* ==============================
+   Health Check (VERY IMPORTANT)
+   Helps verify Railway deploy
+================================ */
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
-// Additional endpoints (optional, for direct testing or simple outputs)
+/* ==============================
+   API Routes
+================================ */
+app.use("/api/users", customerRoutes);
+app.use("/api/providers", providerRoutes);
+app.use("/api/report", reportRoute);
+
+/* ==============================
+   Basic test routes
+================================ */
 app.get("/", (req, res) => {
-    res.send("<h1>Home Page</h1>")
-});
-app.get("/test", (req, res) => {
-    res.send("Test route works!");
+  res.send("<h1>Tutor Scheduler Pro API</h1>");
 });
 
-// Error handling middleware
-const { errorHandler, notFound } = require('./middlewares/errorMiddleware');
+app.get("/test", (req, res) => {
+  res.send("Test route works!");
+});
+
+/* ==============================
+   Error Handling
+================================ */
 app.use(notFound);
 app.use(errorHandler);
 
-// Server activation
-app.listen(process.env.PORT || 3001, () => {
-    console.log(`Server started on port ${process.env.PORT || 3001}`);
+/* ==============================
+   Start Server (Railway-safe)
+================================ */
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-
-
-
-// testing a lottttttt

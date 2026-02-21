@@ -70,48 +70,8 @@ exports.loginCustomer = async (req, res) => {
   }
 };
 
-// exports.getClassOptions = async (req, res) => {
-//   // Get the service type from the user's request
-//   const { serviceType } = req.query;
 
-//   try {
-//       // Prepare a SQL command to get all classes that match the service type
-//       const query = "SELECT * FROM class WHERE service_type = ?";
-//       const params = [serviceType];
-
-//       // Execute the database query
-//       db.query(query, params, (err, classes) => {
-//           if (err) {
-//               // If there is a problem with the database, tell the user
 //               return res.status(500).json({ message: "Database error", error: err });
-//           }
-
-//           if (classes.length === 0) {
-//               // If no classes are found, tell the user
-//               return res.status(404).json({ message: "No classes found for the selected service type." });
-//           }
-
-//           // Prepare the data about the classes to send back to the user
-//           const classOptions = classes.map(cls => ({
-//               id: cls.id,
-//               name: cls.name,
-//               providerId: cls.provider_id,
-//               startTime: cls.start_time,
-//               endTime: cls.end_time,
-//               cost: cls.cost 
-//           }));
-
-//           // Send the class data back to the user
-//           res.json({
-//               message: "Classes retrieved successfully",
-//               classes: classOptions
-//           });
-//       });
-//   } catch (error) {
-//       // If something goes wrong, tell the user there was a server error
-//       res.status(500).json({ message: "Server error while fetching classes", error });
-//   }
-// };
 
 exports.getClassOptions = async (req, res) => {
       const { serviceType } = req.params;
