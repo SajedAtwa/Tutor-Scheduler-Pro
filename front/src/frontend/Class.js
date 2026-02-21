@@ -1,6 +1,5 @@
 import './Class.css';
 import { useNavigate } from 'react-router-dom';
-import Dropdown from 'react-bootstrap/Dropdown';
 import "./home.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 function Class() {

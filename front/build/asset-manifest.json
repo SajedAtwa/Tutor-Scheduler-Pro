@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/static/css/main.4afd125b.css",
+    "main.js": "/static/js/main.eed740e5.js",
+    "static/media/english.jpg": "/static/media/english.a1d007e81046dad83be2.jpg",
+    "static/media/math.jpg": "/static/media/math.20629ecd6f4a924dbf8d.jpg",
+    "static/media/spanish.jpg": "/static/media/spanish.305e801d6e7f8504c3be.jpg",
+    "static/media/science.jpg": "/static/media/science.5636a162a44723fa760c.jpg",
+    "static/media/history.jpg": "/static/media/history.26463906af81e3389d70.jpg",
+    "static/media/what.jpg": "/static/media/what.b830b016fc51e3bb0b33.jpg",
+    "index.html": "/index.html",
+    "main.4afd125b.css.map": "/static/css/main.4afd125b.css.map",
+    "main.eed740e5.js.map": "/static/js/main.eed740e5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4afd125b.css",
+    "static/js/main.eed740e5.js"
+  ]
+}

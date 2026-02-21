@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Schedule.css';
-import { jwtDecode as jwt_decode } from 'jwt-decode';
-import Dropdown from 'react-bootstrap/Dropdown';
 import "../styles/S.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -25,7 +23,10 @@ function Schedule() {
   const [zipcode, setZipcode] = useState('');
 
   const token = localStorage.getItem('token');
-  const baseURL = process.env.REACT_APP_API_BASE_URL;
+
+  const baseURLRaw = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
+  const baseURL = baseURLRaw.endsWith('/') ? baseURLRaw : `${baseURLRaw}/`;
+
   useEffect(() => {
     if (selectedService) {
       fetch(`${baseURL}api/users/classes/${encodeURIComponent(selectedService)}`, {
@@ -39,7 +40,7 @@ function Schedule() {
     } else {
       setClasses({});
     }
-  }, [selectedService, token]);
+  }, [selectedService, token, baseURL]);
 
   const handleClassSubmit = async (event) => {
     event.preventDefault();
@@ -107,6 +108,7 @@ function Schedule() {
           </div>
         </header>
       </div>
+
       <div className="Schedule">
         <h1 className="booking-form-header">Create Class Form</h1>
         <form onSubmit={handleClassSubmit}>
@@ -119,6 +121,7 @@ function Schedule() {
               ))}
             </select>
           </label>
+
           {selectedService && Object.entries(classes).map(([classType, classList]) => (
             <label key={classType}>
               {classType}:
@@ -137,24 +140,29 @@ function Schedule() {
         {selectedClassId && (
           <form onSubmit={handlePaymentSubmit}>
             <h2>Payment Information</h2>
-            <div class="input-row full-width">
+
+            <div className="input-row full-width">
               <input type="text" value={creditCardNumber} onChange={e => setCreditCardNumber(e.target.value)} placeholder="Credit Card Number" required />
               <input type="text" id='cvc' value={cvc} onChange={e => setCvc(e.target.value)} placeholder="CVC" required />
               <input type="month" value={expirationDate} onChange={e => setExpirationDate(e.target.value)} placeholder="Expiration Date" required />
             </div>
-            <div class="input-row full-width">
+
+            <div className="input-row full-width">
               <input type="text" value={cardholderFirstName} onChange={e => setCardholderFirstName(e.target.value)} placeholder="Cardholder First Name" required />
               <input type="text" value={cardholderLastName} onChange={e => setCardholderLastName(e.target.value)} placeholder="Cardholder Last Name" required />
             </div>
-            <div class="input-row full-width">
+
+            <div className="input-row full-width">
               <input type="text" value={addressOne} onChange={e => setAddressOne(e.target.value)} placeholder="Address Line 1" required />
               <input type="text" value={addressTwo} onChange={e => setAddressTwo(e.target.value)} placeholder="Address Line 2" />
             </div>
-            <div class="input-row">
+
+            <div className="input-row">
               <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="City" required />
               <input type="text" value={state} onChange={e => setState(e.target.value)} placeholder="State" required />
               <input type="text" value={zipcode} onChange={e => setZipcode(e.target.value)} placeholder="Zip Code" required />
             </div>
+
             <button type="submit">Submit Payment</button>
           </form>
         )}
