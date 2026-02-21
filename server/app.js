@@ -17,11 +17,20 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*", // restrict later if needed
+    origin: (origin, cb) => {
+      // allow server-to-server + curl/postman (no origin)
+      if (!origin) return cb(null, true);
+
+      const allowed = [
+        process.env.FRONTEND_URL,          // e.g. https://tutor-scheduler-pro-mauve.vercel.app
+      ].filter(Boolean);
+
+      if (allowed.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
-
 /* ==============================
    Health Check (VERY IMPORTANT)
    Helps verify Railway deploy
@@ -57,8 +66,18 @@ app.use(errorHandler);
 /* ==============================
    Start Server (Railway-safe)
 ================================ */
+const { initDb } = require("./db/initDb");
+
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
+(async () => {
+  try {
+    await initDb();             // ✅ auto-create tables
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("❌ Failed to init DB:", err);
+    process.exit(1);
+  }
+})();

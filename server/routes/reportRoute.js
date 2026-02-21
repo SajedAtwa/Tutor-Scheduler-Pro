@@ -1,73 +1,146 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../config/database');
-const ExcelJS = require('exceljs');
+const db = require("../config/database");
+const ExcelJS = require("exceljs");
 
-router.get('/download-excel', async (req, res) => {
-    try {
-        // Execute stored procedures for total revenue and service types
-        const [totalRevenueResults] = await db.query('CALL totalRevenue();');
-        const [revenueByFightClubResults] = await db.query('CALL totalRevenueByServiceType(?);', ['fight club']);
-        const [revenueByFinancialAdvResults] = await db.query('CALL totalRevenueByServiceType(?);', ['financial advisement']);
-        const [revenueByHomeFlavorsResults] = await db.query('CALL totalRevenueByServiceType(?);', ['home flavors']);
-        const [totalOrdersResults] = await db.query('CALL totalOrdersByService();');
+// Helper: revenue grouped by service_type
+async function revenueByServiceType(serviceType) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      s.service_type,
+      COUNT(b.id) AS total_bookings,
+      COALESCE(SUM(c.cost), 0) AS total_revenue
+    FROM booking b
+    JOIN class c ON c.id = b.class_id
+    JOIN service s ON s.id = c.service_id
+    WHERE LOWER(s.service_type) = LOWER(?)
+    `,
+    [serviceType]
+  );
+  return rows;
+}
 
-        // Create a new workbook and a worksheet
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Report');
+// Helper: total revenue overall
+async function totalRevenue() {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      COALESCE(SUM(c.cost), 0) AS total_revenue,
+      COUNT(b.id) AS total_bookings
+    FROM booking b
+    JOIN class c ON c.id = b.class_id
+    `
+  );
+  return rows;
+}
 
-        // Define columns
-        worksheet.columns = [
-            { header: 'Total Revenue', key: 'total_revenue', width: 18, style: { alignment: { horizontal: 'right' } } },
-            { header: 'Service Type', key: 'service_type', width: 20 },
-            { header: 'Total Bookings', key: 'total_bookings', width: 15, style: { alignment: { horizontal: 'right' } } }
-        ];
+// Helper: total orders/bookings grouped by service_type
+async function totalOrdersByService() {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      s.service_type,
+      COUNT(b.id) AS total_bookings,
+      COALESCE(SUM(c.cost), 0) AS total_revenue
+    FROM booking b
+    JOIN class c ON c.id = b.class_id
+    JOIN service s ON s.id = c.service_id
+    GROUP BY s.service_type
+    ORDER BY total_bookings DESC
+    `
+  );
+  return rows;
+}
 
-        // Function to add section with formatting
-        const addSection = (title, data, color = 'FFD9D9D9') => {
-            worksheet.addRow([title, '---', '---']).font = { bold: true };
-            worksheet.lastRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: color } };
-            data.forEach(row => worksheet.addRow(row).commit());
-            worksheet.addRow([]); // Adds a blank row after the section
-        };
+// Helper: bookings in a specific month (1-12)
+async function totalOrdersByMonth(month) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      s.service_type,
+      COUNT(b.id) AS total_bookings,
+      COALESCE(SUM(c.cost), 0) AS total_revenue
+    FROM booking b
+    JOIN class c ON c.id = b.class_id
+    JOIN service s ON s.id = c.service_id
+    WHERE MONTH(b.created_at) = ?
+    GROUP BY s.service_type
+    ORDER BY total_bookings DESC
+    `,
+    [month]
+  );
+  return rows;
+}
 
-        // Add total revenue and revenues by service type
-        addSection('Total Revenue', totalRevenueResults[0].map(row => ({ total_revenue: row.total_revenue, service_type: 'N/A', total_bookings: 'N/A' })), 'FFF0F0F0');
-        addSection('Revenue by Fight Club', revenueByFightClubResults[0].map(row => ({ total_revenue: row.total_revenue, service_type: 'fight club', total_bookings: 'N/A' })), 'FFCCFFFF');
-        addSection('Revenue by Financial Advisement', revenueByFinancialAdvResults[0].map(row => ({ total_revenue: row.total_revenue, service_type: 'financial advisement', total_bookings: 'N/A' })), 'FFCCFFFF');
-        addSection('Revenue by Home Flavors', revenueByHomeFlavorsResults[0].map(row => ({ total_revenue: row.total_revenue, service_type: 'home flavors', total_bookings: 'N/A' })), 'FFCCFFFF');
-        
-        // Execute and add orders by service month for each month
-        for (let month = 1; month <= 12; month++) {
-            const [results] = await db.query('CALL totalOrderByServiceMonth(?);', [month]);
-            addSection(`Orders in Month ${month}`, results[0], 'FFCCFFFF');
-        }
+router.get("/download-excel", async (req, res) => {
+  try {
+    // ✅ Replace hardcoded weird categories with actual ones in your app:
+    // Math, English, Science, History, Foreign Language
+    const serviceTypes = ["Math", "English", "Science", "History", "Foreign Language"];
 
-        // Add total orders
-        addSection('Total Orders', totalOrdersResults[0], 'FFF0F0F0');
+    const totalRevenueResults = await totalRevenue();
+    const totalOrdersResults = await totalOrdersByService();
 
-        // Adjust column widths after all data is added
-        worksheet.columns.forEach(column => {
-            let maxColumnLength = 0;
-            column.eachCell({ includeEmpty: true }, cell => {
-                maxColumnLength = Math.max(maxColumnLength, cell.value ? cell.value.toString().length : 0);
-            });
-            column.width = maxColumnLength < 12 ? 12 : maxColumnLength + 2; // minimum width or dynamic width + 2 for padding
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Report");
+
+    worksheet.columns = [
+      { header: "Total Revenue", key: "total_revenue", width: 18 },
+      { header: "Service Type", key: "service_type", width: 22 },
+      { header: "Total Bookings", key: "total_bookings", width: 15 },
+    ];
+
+    const addSection = (title, data, color = "FFD9D9D9") => {
+      worksheet.addRow([title, "---", "---"]).font = { bold: true };
+      worksheet.lastRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+
+      data.forEach((row) => {
+        worksheet.addRow({
+          total_revenue: row.total_revenue,
+          service_type: row.service_type ?? "N/A",
+          total_bookings: row.total_bookings ?? "N/A",
         });
+      });
 
-        // Write to buffer
-        const buffer = await workbook.xlsx.writeBuffer();
+      worksheet.addRow([]);
+    };
 
-        // Set response headers
-        res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.header('Content-Disposition', 'attachment; filename="report.xlsx"');
+    // Total revenue section
+    addSection(
+      "Total Revenue (All)",
+      totalRevenueResults.map((r) => ({
+        total_revenue: r.total_revenue,
+        service_type: "ALL",
+        total_bookings: r.total_bookings,
+      })),
+      "FFF0F0F0"
+    );
 
-        // Send the buffer
-        res.send(buffer);
-    } catch (error) {
-        console.error("Detailed Error:", error);
-        res.status(500).json({ message: "Error generating Excel file", error: error.message });
+    // Revenue per service type
+    for (const st of serviceTypes) {
+      const rows = await revenueByServiceType(st);
+      addSection(`Revenue by ${st}`, rows.length ? rows : [{ total_revenue: 0, service_type: st, total_bookings: 0 }], "FFCCFFFF");
     }
+
+    // Month breakdown
+    for (let month = 1; month <= 12; month++) {
+      const rows = await totalOrdersByMonth(month);
+      addSection(`Orders in Month ${month}`, rows, "FFCCFFFF");
+    }
+
+    // Total orders section
+    addSection("Total Orders (Grouped by Service)", totalOrdersResults, "FFF0F0F0");
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.header("Content-Disposition", 'attachment; filename="report.xlsx"');
+    res.send(buffer);
+  } catch (error) {
+    console.error("Detailed Error:", error);
+    res.status(500).json({ message: "Error generating Excel file", error: error.message });
+  }
 });
 
 module.exports = router;

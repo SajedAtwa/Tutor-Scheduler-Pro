@@ -1,0 +1,75 @@
+-- server/db/schema.sql
+CREATE TABLE IF NOT EXISTS customer (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS provider (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS address (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  address_one VARCHAR(255) NOT NULL,
+  address_two VARCHAR(255),
+  city VARCHAR(100) NOT NULL,
+  state VARCHAR(50) NOT NULL,
+  zipcode VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS service (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  service_type VARCHAR(100) NOT NULL,
+  class_type VARCHAR(100) NOT NULL,
+  UNIQUE KEY uniq_service (service_type, class_type)
+);
+
+CREATE TABLE IF NOT EXISTS class (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  provider_id INT NOT NULL,
+  service_id INT NOT NULL,
+  address_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  cost DECIMAL(10,2) NOT NULL,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (provider_id) REFERENCES provider(id) ON DELETE CASCADE,
+  FOREIGN KEY (service_id) REFERENCES service(id) ON DELETE RESTRICT,
+  FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS payment_info (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  address_id INT NOT NULL,
+  credit_card_number VARCHAR(50) NOT NULL,
+  cvc VARCHAR(10) NOT NULL,
+  expiration_date VARCHAR(10) NOT NULL,
+  cardholder_first_name VARCHAR(100) NOT NULL,
+  cardholder_last_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS booking (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  class_id INT NOT NULL,
+  payment_info_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE,
+  FOREIGN KEY (class_id) REFERENCES class(id) ON DELETE CASCADE,
+  FOREIGN KEY (payment_info_id) REFERENCES payment_info(id) ON DELETE RESTRICT
+);
