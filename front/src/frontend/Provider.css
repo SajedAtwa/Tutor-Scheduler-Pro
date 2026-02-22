@@ -75,3 +75,61 @@ button[type="submit"] {
 .create-class-header{
   color: #8EB8E5;
 }
+
+/* Page layout: allow scrolling, navbar fixed */
+.provider-page {
+  min-height: 100vh;
+  background: #f2f2f2;
+}
+
+.provider-navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* Push content below fixed navbar */
+.provider-content {
+  padding-top: 90px; /* adjust if your navbar is taller */
+  padding-bottom: 40px;
+}
+
+/* Improve New_Class spacing on smaller screens */
+.New_Class {
+  margin-top: 24px;
+}
+
+/* Make hint visible on white card */
+.hint-text {
+  color: #666;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.address-form {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px dashed #cfcfcf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.address-title {
+  margin: 6px 0 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.address-row {
+  margin-top: 10px;
+}
+
+.secondary-btn {
+  background: #6c757d;
+  border-radius: 6px;
+}
+
+.secondary-btn:hover {
+  background: #5a6268;
+}
