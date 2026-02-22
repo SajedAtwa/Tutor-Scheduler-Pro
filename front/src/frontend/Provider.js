@@ -76,8 +76,13 @@ function Provider() {
       return;
     }
 
-    const formattedStartTime = `${date.split('-').join('-')} ${startTime}:00`;
-    const formattedEndTime = `${date.split('-').join('-')} ${endTime}:00`;
+    if (!date || !startTime || !endTime) {
+      alert("Please select date, start time, and end time.");
+      return;
+    }
+
+    const formattedStartTime = `${date} ${startTime}:00`;
+    const formattedEndTime = `${date} ${endTime}:00`;
 
     try {
       const response = await fetch(`${baseURL}api/providers/create`, {
@@ -115,7 +120,7 @@ function Provider() {
   };
 
   return (
-    <div className="home-header">
+    <div className="home-container">
       <header className="navbarContainer home-navbar-interactive">
         <span className="logo">Tutor Scheduler Pro</span>
         <div className="home-desktop-menu">
@@ -131,12 +136,13 @@ function Provider() {
         </div>
       </header>
 
+      <div className='provider-content'>
       <div className="New_Class">
         <h1 className='create-class-header'>Create a Class</h1>
         <form onSubmit={handleSubmit}>
           <label>
             Subjects:
-            <select value={selectedService} onChange={e => setSelectedService(e.target.value)}>
+            <select required value={selectedService} onChange={e => setSelectedService(e.target.value)}>
               <option value="">Select a Subject</option>
               {services.map(service => (
                 <option key={service.id} value={service.service_type}>{service.service_type}</option>
@@ -146,7 +152,7 @@ function Provider() {
 
           <label>
             Class Type:
-            <select value={selectedClassType} onChange={e => setSelectedClassType(e.target.value)}>
+            <select required value={selectedClassType} onChange={e => setSelectedClassType(e.target.value)}>
               <option value="">Select a Class Type</option>
               {classTypes.map(ct => (
                 <option key={ct} value={ct}>{ct}</option>
@@ -156,7 +162,7 @@ function Provider() {
 
           <label>
             Course ID:
-            <input
+            <input required
               type="text"
               value={selectedClassName}
               onChange={e => setSelectedClassName(e.target.value)}
@@ -166,17 +172,12 @@ function Provider() {
 
           <label>
             Class Cost:
-            <input
-              type="text"
-              value={classCost}
-              onChange={e => setClassCost(e.target.value)}
-              placeholder="Enter Class Cost"
-            />
+            <input required type="number" min="0" step="0.01" value={classCost} onChange={e => setClassCost(e.target.value)} />
           </label>
 
           <label>
             Address ID:
-            <select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
+            <select required value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
               <option value="">Select an address</option>
               {addresses.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -194,7 +195,7 @@ function Provider() {
 
           <label>
             Date:
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <input required type="date" value={date} onChange={e => setDate(e.target.value)} />
           </label>
 
           <label>
@@ -221,6 +222,7 @@ function Provider() {
             <button type="submit">Create Class</button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,12 @@
+/* Ensures page content is scrollable under the fixed navbar */
+.provider-content {
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 120px; /* space for fixed navbar */
+  padding-bottom: 40px;
+  display: flex;
+  justify-content: center;
+}
 .New_Class {
   text-align: center;
   margin-top: 50px;

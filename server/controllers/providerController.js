@@ -225,54 +225,83 @@ const providerController = {
     // Saves the complete class information to the class table
     // Example: INSERT INTO class (provider_id, service_id, address_id, class_name, cost, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?);
     createClass: async (req, res) => {
-      const { serviceType, classType, addressId, className, cost, startTime, endTime } = req.body;
-  
-      if (!serviceType || !classType || !addressId || !className || !cost || !startTime || !endTime) {
-          return res.status(400).json({
-              success: false,
-              message: 'All fields are required (serviceType, classType, addressId, className, cost, startTime, endTime).'
-          });
-      }
-  
-      const providerId = req.user.provider.id; // Simplified assumption that this is always present
+        const { serviceType, classType, addressId, className, cost, startTime, endTime } = req.body;
 
-      console.log('Provider ID:', providerId);
-if (!providerId) {
-    return res.status(403).json({
-        success: false,
-        message: 'Unauthorized: No provider information found.'
-    });
-}
+        // More reliable validation (doesn't reject 0, etc.)
+        const missing =
+            !serviceType ||
+            !classType ||
+            addressId === undefined || addressId === null || addressId === "" ||
+            !className ||
+            cost === undefined || cost === null || cost === "" ||
+            !startTime ||
+            !endTime;
 
-  
-      try {
-          const serviceSql = 'SELECT id FROM service WHERE service_type = ? AND class_type = ?';
-          const [services] = await db.execute(serviceSql, [serviceType, classType]);
-  
-          if (services.length === 0) {
-              return res.status(404).json({
-                  success: false,
-                  message: 'No service found with the specified type and class type.'
-              });
-          }
-          const serviceId = services[0].id;
-  
-          const sql = 'INSERT INTO class (provider_id, service_id, address_id, name, cost, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
-          const result = await db.execute(sql, [providerId, serviceId, addressId, className, cost, startTime, endTime]);
-  
-          res.json({
-              success: true,
-              message: 'Class created successfully',
-              classId: result[0].insertId
-          });
-      } catch ( error ) {
-          console.error('Error creating class:', error);
-          res.status(500).json({
-              success: false,
-              message: 'Server error occurred while creating the class.'
-          });
-      }
-  },
+        if (missing) {
+            return res.status(400).json({
+            success: false,
+            message: "All fields are required (serviceType, classType, addressId, className, cost, startTime, endTime).",
+            });
+        }
+
+        const providerId = req.user?.provider?.id;
+        if (!providerId) {
+            return res.status(403).json({
+            success: false,
+            message: "Unauthorized: No provider information found.",
+            });
+        }
+
+        try {
+            // 1) Ensure service exists
+            const serviceSql = "SELECT id FROM service WHERE service_type = ? AND class_type = ? LIMIT 1";
+            const [services] = await db.execute(serviceSql, [serviceType, classType]);
+
+            if (services.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No service found with the specified type and class type. Seed the service table first.",
+            });
+            }
+            const serviceId = services[0].id;
+
+            // 2) Ensure address exists (prevents FK error)
+            const addrSql = "SELECT id FROM address WHERE id = ? LIMIT 1";
+            const [addrRows] = await db.execute(addrSql, [addressId]);
+
+            if (addrRows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid addressId: ${addressId}. Please select a valid address.`,
+            });
+            }
+
+            // 3) Insert class
+            const insertSql =
+            "INSERT INTO class (provider_id, service_id, address_id, name, cost, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            const [result] = await db.execute(insertSql, [
+            providerId,
+            serviceId,
+            addressId,
+            className,
+            cost,
+            startTime,
+            endTime,
+            ]);
+
+            return res.json({
+            success: true,
+            message: "Class created successfully",
+            classId: result.insertId,
+            });
+        } catch (error) {
+            console.error("Error creating class:", error);
+            return res.status(500).json({
+            success: false,
+            message: "Server error occurred while creating the class.",
+            });
+        }
+    },
   
 
     // Retrieve and list all classes linked to the logged-in provider
