@@ -6,11 +6,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Schedule() {
   const navigate = useNavigate();
+
   const [services] = useState(['Math', 'English', 'Science', 'History', 'Foreign Language']);
   const [selectedService, setSelectedService] = useState('');
-  const [classes, setClasses] = useState({});
+
+  // backend will return: { data: { "Calc 1": [ {..class..}, ... ], ... } }
+  const [classesByType, setClassesByType] = useState({});
   const [selectedClassId, setSelectedClassId] = useState('');
 
+  // payment fields
   const [creditCardNumber, setCreditCardNumber] = useState('');
   const [cvc, setCvc] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
@@ -28,39 +32,69 @@ function Schedule() {
   const baseURL = baseURLRaw.endsWith('/') ? baseURLRaw : `${baseURLRaw}/`;
 
   useEffect(() => {
-    if (selectedService) {
-      fetch(`${baseURL}api/users/classes/${encodeURIComponent(selectedService)}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(response => response.json())
-        .then(data => {
-          setClasses(data.data || {});
-        })
-        .catch(err => console.error('Failed to fetch class types', err));
-    } else {
-      setClasses({});
+    if (!token) return;
+
+    if (!selectedService) {
+      setClassesByType({});
+      setSelectedClassId('');
+      return;
     }
+
+    (async () => {
+      try {
+        const res = await fetch(
+          `${baseURL}api/users/classes/${encodeURIComponent(selectedService)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error("Classes fetch failed:", data);
+          setClassesByType({});
+          return;
+        }
+
+        setClassesByType(data.data || {});
+      } catch (err) {
+        console.error("Failed to fetch classes:", err);
+        setClassesByType({});
+      }
+    })();
   }, [selectedService, token, baseURL]);
 
-  const handleClassSubmit = async (event) => {
-    event.preventDefault();
-    // Handle class selection submission if needed
+  const formatDateTime = (c) => {
+    // support snake_case or camelCase
+    const start = c.start_time || c.startTime;
+    const end = c.end_time || c.endTime;
+    const startLabel = start ? new Date(start).toLocaleString() : 'N/A';
+    const endLabel = end ? new Date(end).toLocaleString() : 'N/A';
+    return `${startLabel} → ${endLabel}`;
   };
 
   const handlePaymentSubmit = async (event) => {
     event.preventDefault();
+
     if (!token) {
       alert('No token found, please log in');
       return;
     }
 
+    if (!selectedClassId) {
+      alert('Please select a class');
+      return;
+    }
+
+    // IMPORTANT: your backend expects `class_id`, not `classId`
     const bookingData = {
-      class_id: selectedClassId,
+      class_id: Number(selectedClassId),
+
       creditCardNumber,
       cvc,
       expirationDate,
       cardholderFirstName,
       cardholderLastName,
+
       addressOne,
       addressTwo,
       city,
@@ -73,25 +107,27 @@ function Schedule() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(bookingData)
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         alert('Booking successful!');
         navigate('/billing');
       } else {
-        const errorData = await response.json();
-        alert('Failed to book: ' + errorData.message);
+        alert(data.message || 'Failed to book');
       }
     } catch (error) {
+      console.error(error);
       alert('Network error, unable to complete booking');
     }
   };
 
   return (
-    <div className='schedule-page'>
+    <div className="schedule-page">
       <div className="home-header">
         <header className="navbarContainer home-navbar-interactive">
           <span className="logo">Tutor Scheduler Pro</span>
@@ -100,7 +136,12 @@ function Schedule() {
               <span className="home-nav" onClick={() => navigate('/')}>Home</span>
               <span className="home-nav bodySmall" onClick={() => navigate('/tutor')}>About Us</span>
               <span className="home-nav" onClick={() => navigate('/schedule')}>Book Appointment</span>
-              <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <a
+                href="https://www.youtube.com/watch?v=xvFZjo5PgG0"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <span className="home-nav">Contact Us</span>
               </a>
             </nav>
@@ -110,8 +151,9 @@ function Schedule() {
       </div>
 
       <div className="Schedule">
-        <h1 className="booking-form-header">Create Class Form</h1>
-        <form onSubmit={handleClassSubmit}>
+        <h1 className="booking-form-header">Book an Appointment</h1>
+
+        <form onSubmit={(e) => e.preventDefault()}>
           <label>
             Subject:
             <select value={selectedService} onChange={e => setSelectedService(e.target.value)}>
@@ -122,14 +164,18 @@ function Schedule() {
             </select>
           </label>
 
-          {selectedService && Object.entries(classes).map(([classType, classList]) => (
+          {selectedService && Object.keys(classesByType).length === 0 && (
+            <p className="schedule-hint">No classes found for this subject yet.</p>
+          )}
+
+          {selectedService && Object.entries(classesByType).map(([classType, classList]) => (
             <label key={classType}>
               {classType}:
-              <select onChange={e => setSelectedClassId(e.target.value)}>
+              <select value={selectedClassId} onChange={e => setSelectedClassId(e.target.value)}>
                 <option value="">Select a Class</option>
-                {classList.map(classItem => (
-                  <option key={classItem.id} value={classItem.id}>
-                    {`${classItem.name} - $${classItem.cost} - ${new Date(classItem.startTime).toLocaleString()} to ${new Date(classItem.endTime).toLocaleString()}`}
+                {Array.isArray(classList) && classList.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {`${c.name} — $${c.cost} — ${formatDateTime(c)}`}
                   </option>
                 ))}
               </select>
@@ -138,23 +184,64 @@ function Schedule() {
         </form>
 
         {selectedClassId && (
-          <form onSubmit={handlePaymentSubmit}>
+          <form onSubmit={handlePaymentSubmit} className="payment-form">
             <h2>Payment Information</h2>
 
             <div className="input-row full-width">
-              <input type="text" value={creditCardNumber} onChange={e => setCreditCardNumber(e.target.value)} placeholder="Credit Card Number" required />
-              <input type="text" id='cvc' value={cvc} onChange={e => setCvc(e.target.value)} placeholder="CVC" required />
-              <input type="month" value={expirationDate} onChange={e => setExpirationDate(e.target.value)} placeholder="Expiration Date" required />
+              <input
+                type="text"
+                value={creditCardNumber}
+                onChange={e => setCreditCardNumber(e.target.value)}
+                placeholder="Credit Card Number"
+                required
+              />
+              <input
+                type="text"
+                id="cvc"
+                value={cvc}
+                onChange={e => setCvc(e.target.value)}
+                placeholder="CVC"
+                required
+              />
+              <input
+                type="month"
+                value={expirationDate}
+                onChange={e => setExpirationDate(e.target.value)}
+                required
+              />
             </div>
 
             <div className="input-row full-width">
-              <input type="text" value={cardholderFirstName} onChange={e => setCardholderFirstName(e.target.value)} placeholder="Cardholder First Name" required />
-              <input type="text" value={cardholderLastName} onChange={e => setCardholderLastName(e.target.value)} placeholder="Cardholder Last Name" required />
+              <input
+                type="text"
+                value={cardholderFirstName}
+                onChange={e => setCardholderFirstName(e.target.value)}
+                placeholder="Cardholder First Name"
+                required
+              />
+              <input
+                type="text"
+                value={cardholderLastName}
+                onChange={e => setCardholderLastName(e.target.value)}
+                placeholder="Cardholder Last Name"
+                required
+              />
             </div>
 
             <div className="input-row full-width">
-              <input type="text" value={addressOne} onChange={e => setAddressOne(e.target.value)} placeholder="Address Line 1" required />
-              <input type="text" value={addressTwo} onChange={e => setAddressTwo(e.target.value)} placeholder="Address Line 2" />
+              <input
+                type="text"
+                value={addressOne}
+                onChange={e => setAddressOne(e.target.value)}
+                placeholder="Address Line 1"
+                required
+              />
+              <input
+                type="text"
+                value={addressTwo}
+                onChange={e => setAddressTwo(e.target.value)}
+                placeholder="Address Line 2"
+              />
             </div>
 
             <div className="input-row">

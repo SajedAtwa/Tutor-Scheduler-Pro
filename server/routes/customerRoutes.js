@@ -1,33 +1,40 @@
 const express = require('express');
 const router = express.Router();
 
-// Import your controllers
 const customerController = require('../controllers/customerController');
 
-// Import middleware
 const authMiddleware = require('../middlewares/authMiddleware');
-const { notFound, errorHandler } = require('../middlewares/errorMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
+const { notFound, errorHandler } = require('../middlewares/errorMiddleware');
 
-// Route to register a new customer (Public access)
-router.post('/signup', customerController.registerCustomer, errorHandler);
+// Public
+router.post('/signup', customerController.registerCustomer);
+router.post('/login', customerController.loginCustomer);
 
-// Route to login (Public access)
-router.post('/login', customerController.loginCustomer, errorHandler);
+// Protected
+router.get(
+  '/classes/:serviceType',
+  authMiddleware,
+  roleMiddleware(['customer']),
+  customerController.getClassOptions
+);
 
-// Route to fetch class options (Requires authentication)
-router.get('/classes/:serviceType', authMiddleware, customerController.getClassOptions, errorHandler);
+router.get(
+  '/sessions/:classType',
+  authMiddleware,
+  roleMiddleware(['customer']),
+  customerController.getSessionOptions
+);
 
-// Route to get session times for a specific class (Requires authentication)
-router.get('/sessions/:classType', authMiddleware, customerController.getSessionOptions, errorHandler);
+router.post(
+  '/payment',
+  authMiddleware,
+  roleMiddleware(['customer']),
+  customerController.processPayment
+);
 
-// Route to process payment and booking (Requires authentication and specific roles if necessary)
-router.post('/payment', authMiddleware, customerController.processPayment, errorHandler);
-
-// Handle 404 Not Found
+// 404 + error handler at end
 router.use(notFound);
-
-// General error handler
 router.use(errorHandler);
 
 module.exports = router;

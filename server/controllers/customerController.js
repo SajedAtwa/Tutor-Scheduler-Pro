@@ -58,8 +58,12 @@ exports.loginCustomer = async (req, res) => {
               if (err) throw err;
               // Send back the token and some details about the customer
               res.json({
-                  token,
-                  customer: { id: customer.id, name: customer.first_name + ' ' + customer.last_name, email: customer.email }
+                token,
+                customer: {
+                  id: customer.id,
+                  name: customer.first_name + ' ' + customer.last_name,
+                  email: customer.email
+                }
               });
           }
       );
@@ -73,52 +77,54 @@ exports.loginCustomer = async (req, res) => {
 
 
 exports.getClassOptions = async (req, res) => {
-      const { serviceType } = req.params;
-  
-    try {
-      console.log('Service Type:', serviceType);
-  
-      // Query to select distinct class types, names, start times, and end times from the service and class tables
-      const query = `
-        SELECT s.class_type, c.name, c.start_time, c.end_time, c.cost, c.id
-        FROM service s
-        JOIN class c ON s.id = c.service_id
-        WHERE LOWER(s.service_type) = LOWER(?)
-          AND c.start_time >= NOW()
-        ORDER BY s.class_type, c.start_time
-      `;
-  
-      // Execute the query
-      const [results] = await db.query(query, [serviceType]);
-  
-      console.log('Results:', results);
-      console.log('Number of results:', results.length);
-  
-      // If no results found, return 404
-      if (results.length === 0) {
-        return res.status(404).send('No class types and sessions found for the selected service type.');
-      }
-  
-      // Group the results by class type
-      const classOptions = {};
-      results.forEach(result => {
-        const { class_type, name, start_time, end_time, cost, id} = result;
-        if (!classOptions[class_type]) {
-          classOptions[class_type] = [];
-        }
-        classOptions[class_type].push({ name, startTime: start_time, endTime: end_time, cost, id});
+  const { serviceType } = req.params;
+
+  try {
+    const query = `
+      SELECT s.class_type, c.name, c.start_time, c.end_time, c.cost, c.id
+      FROM service s
+      JOIN class c ON s.id = c.service_id
+      WHERE LOWER(s.service_type) = LOWER(?)
+        AND c.start_time >= NOW()
+      ORDER BY s.class_type, c.start_time
+    `;
+
+    // IMPORTANT: use execute consistently (returns [rows])
+    const [results] = await db.execute(query, [serviceType]);
+
+    // Always return JSON (React expects response.json())
+    if (!results || results.length === 0) {
+      return res.status(200).json({
+        message: "No upcoming classes found for this subject.",
+        data: {}
       });
-  
-      // Send the response
-      res.json({
-        message: "Class types and sessions retrieved successfully",
-        data: classOptions
-      });
-    } catch (err) {
-      console.error('Error executing query', err);
-      res.status(500).send('Error processing your request');
     }
-  };
+
+    const classOptions = {};
+    results.forEach(r => {
+      const { class_type, name, start_time, end_time, cost, id } = r;
+      if (!classOptions[class_type]) classOptions[class_type] = [];
+      classOptions[class_type].push({
+        id,
+        name,
+        cost,
+        startTime: start_time,
+        endTime: end_time
+      });
+    });
+
+    return res.json({
+      message: "Class types and sessions retrieved successfully",
+      data: classOptions
+    });
+  } catch (err) {
+    console.error('Error executing query', err);
+    return res.status(500).json({
+      message: "Error processing your request",
+      data: {}
+    });
+  }
+};
 
 exports.getSessionOptions = async (req, res) => {
   // Get the class type from the user's request
@@ -169,64 +175,89 @@ exports.getSessionOptions = async (req, res) => {
 
 // A function to process payment and book a class
 exports.processPayment = async (req, res) => {
-
-  // We get all the necessary information from the user's input
-  const { 
-      class_id, 
-      creditCardNumber, cvc, expirationDate, cardholderFirstName, cardholderLastName,
-      addressOne, addressTwo, city, state, zipcode
+  const {
+    class_id,
+    creditCardNumber, cvc, expirationDate, cardholderFirstName, cardholderLastName,
+    addressOne, addressTwo, city, state, zipcode
   } = req.body;
 
-  const customerId = req.user.customer.id; // Simplified assumption that this is always present
+  const customerId = req.user?.customer?.id;
 
-  console.log('customer ID:', customerId);
   if (!customerId) {
     return res.status(403).json({
       success: false,
-      message: 'Unauthorized: No provider information found.'
+      message: 'Unauthorized: No customer information found.'
     });
   }
+
   if (
     !class_id || !creditCardNumber || !cvc || !expirationDate ||
-    !cardholderFirstName || !cardholderLastName || !addressOne || !city || !state || !zipcode
-  ) 
-  {
+    !cardholderFirstName || !cardholderLastName ||
+    !addressOne || !city || !state || !zipcode
+  ) {
     return res.status(400).json({
       success: false,
       message: 'Bad request: Missing required parameters.'
     });
   }
 
-
   try {
-      // First, we save the address information in the database
-      const addressSql = 'INSERT INTO address (address_one, address_two, city, state, zipcode) VALUES (?, ?, ?, ?, ?)';
-      const addressParams = [addressOne, addressTwo, city, state, zipcode];
-      const [addressResult] = await db.execute(addressSql, addressParams);
-      const addressId = addressResult.insertId;
+    // Optional: validate class exists
+    const [classRows] = await db.execute('SELECT id FROM class WHERE id = ?', [class_id]);
+    if (!classRows || classRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Selected class not found.' });
+    }
 
-      // Next, we save the payment information using the address ID we just created
-      const paymentSql = 'INSERT INTO payment_info (address_id, credit_card_number, cvc, expiration_date, cardholder_first_name, cardholder_last_name) VALUES (?, ?, ?, ?, ?, ?)';
-      const paymentParams = [addressId, creditCardNumber, cvc, expirationDate, cardholderFirstName, cardholderLastName];
-      const [paymentResult] = await db.execute(paymentSql, paymentParams);
-      const paymentInfoId = paymentResult.insertId;
+    // 1) Address
+    const addressSql =
+      'INSERT INTO address (address_one, address_two, city, state, zipcode) VALUES (?, ?, ?, ?, ?)';
+    const [addressResult] = await db.execute(addressSql, [
+      addressOne,
+      addressTwo || null,
+      city,
+      state,
+      zipcode
+    ]);
+    const addressId = addressResult.insertId;
 
-      // Then, we record the booking details in the booking table
-      const bookingSql = 'INSERT INTO booking (customer_id, class_id, payment_info_id) VALUES (?, ?, ?)';
-      const bookingParams = [customerId, class_id, paymentInfoId];
-      const bookingResult = await db.execute(bookingSql, bookingParams);
+    // 2) Payment info
+    const paymentSql = `
+      INSERT INTO payment_info
+        (address_id, credit_card_number, cvc, expiration_date, cardholder_first_name, cardholder_last_name)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+    const [paymentResult] = await db.execute(paymentSql, [
+      addressId,
+      creditCardNumber,
+      cvc,
+      expirationDate,
+      cardholderFirstName,
+      cardholderLastName
+    ]);
+    const paymentInfoId = paymentResult.insertId;
 
-      // Finally, we tell the user everything was successful
-      res.json({
-          message: "Payment and booking processed successfully",
-          addressId: addressId,
-          paymentInfoId: paymentInfoId,
-          bookingId: bookingResult.insertId  // Assuming you want to return the booking ID
-      });
+    // 3) Booking
+    const bookingSql =
+      'INSERT INTO booking (customer_id, class_id, payment_info_id) VALUES (?, ?, ?)';
+    const [bookingResult] = await db.execute(bookingSql, [
+      customerId,
+      class_id,
+      paymentInfoId
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      message: "Payment and booking processed successfully",
+      addressId,
+      paymentInfoId,
+      bookingId: bookingResult.insertId
+    });
   } catch (error) {
-      // If something goes wrong, tell the user there was a server error
-      console.error('Database error:', error);
-      res.status(500).json({ message: 'Server error during the payment and booking process', error });
+    console.error('Database error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error during the payment and booking process'
+    });
   }
 };
 
