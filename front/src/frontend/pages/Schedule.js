@@ -10,7 +10,7 @@ function Schedule() {
   const [services] = useState(['Math', 'English', 'Science', 'History', 'Foreign Language']);
   const [selectedService, setSelectedService] = useState('');
 
-  // backend will return: { data: { "Calc 1": [ {..class..}, ... ], ... } }
+  // backend returns: { data: { "Calc 1": [ {..class..}, ... ], ... } }
   const [classesByType, setClassesByType] = useState({});
   const [selectedClassId, setSelectedClassId] = useState('');
 
@@ -34,11 +34,15 @@ function Schedule() {
   useEffect(() => {
     if (!token) return;
 
+    // If no subject selected, reset
     if (!selectedService) {
       setClassesByType({});
       setSelectedClassId('');
       return;
     }
+
+    // Subject changed → clear selected class before fetching new list
+    setSelectedClassId('');
 
     (async () => {
       try {
@@ -47,7 +51,7 @@ function Schedule() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
           console.error("Classes fetch failed:", data);
@@ -64,11 +68,12 @@ function Schedule() {
   }, [selectedService, token, baseURL]);
 
   const formatDateTime = (c) => {
-    // support snake_case or camelCase
     const start = c.start_time || c.startTime;
     const end = c.end_time || c.endTime;
+
     const startLabel = start ? new Date(start).toLocaleString() : 'N/A';
     const endLabel = end ? new Date(end).toLocaleString() : 'N/A';
+
     return `${startLabel} → ${endLabel}`;
   };
 
@@ -85,8 +90,8 @@ function Schedule() {
       return;
     }
 
-    // IMPORTANT: your backend expects `class_id`, not `classId`
     const bookingData = {
+      // ✅ backend expects class_id (not classId)
       class_id: Number(selectedClassId),
 
       creditCardNumber,
@@ -112,7 +117,7 @@ function Schedule() {
         body: JSON.stringify(bookingData)
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
         alert('Booking successful!');

@@ -22,55 +22,59 @@ exports.registerCustomer = async (req, res) => {
 };
 
 // A function to help a customer log in
+// A function to help a customer log in
 exports.loginCustomer = async (req, res) => {
-  // Get the email and password the customer typed in
   const { email, password } = req.body;
 
-  // Check if both email and password were provided
   if (!email || !password) {
-      return res.status(400).json({ message: "Please provide both email and password." });
+    return res.status(400).json({ message: "Please provide both email and password." });
   }
 
   try {
-      // Prepare to look up the customer by their email
-      const sql = 'SELECT * FROM customer WHERE email = ?';
-      // Run the search in the database
-      const [customers] = await db.execute(sql, [email]);
+    const sql = "SELECT * FROM customer WHERE email = ?";
+    const [customers] = await db.execute(sql, [email]);
 
-      // Check if we found a customer
-      if (customers.length === 0) {
-          return res.status(401).json({ message: 'Invalid credentials, no such customer found.' });
-      }
+    // ✅ FIX: handle "email not found"
+    if (!customers || customers.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials." });
+    }
 
-      // Get the customer's details from the results
-      const customer = customers[0];
+    const customer = customers[0];
 
-      // Check if the password matches
-      const isMatch = await bcrypt.compare(password, customer.password);
-      if (!isMatch) {
-          return res.status(401).json({ message: 'Invalid credentials, password does not match.' });
-      }
+    const isMatch = await bcrypt.compare(password, customer.password);
 
-      // Prepare a special access pass (JWT token) if the login is successful
-      const payload = { customer: { id: customer.id, role: "customer" } };
-      jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' },
-          (err, token) => {
-              if (err) throw err;
-              // Send back the token and some details about the customer
-              res.json({
-                token,
-                customer: {
-                  id: customer.id,
-                  name: customer.first_name + ' ' + customer.last_name,
-                  email: customer.email
-                }
-              });
+    // ✅ FIX: handle "wrong password"
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials." });
+    }
+
+    const payload = {
+      customer: { id: customer.id, role: "customer" }
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" },
+      (err, token) => {
+        if (err) {
+          console.error("JWT sign error:", err);
+          return res.status(500).json({ message: "Server error during the login process." });
+        }
+
+        res.json({
+          token,
+          customer: {
+            id: customer.id,
+            name: customer.first_name + " " + customer.last_name,
+            email: customer.email
           }
-      );
+        });
+      }
+    );
   } catch (err) {
-      // If there was a problem, tell the user there was a server error
-      console.error(err.message);
-      res.status(500).json({ message: 'Server error during the login process.' });
+    console.error("Login error:", err.message);
+    res.status(500).json({ message: "Server error during the login process." });
   }
 };
 
