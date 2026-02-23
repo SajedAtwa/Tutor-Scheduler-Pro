@@ -1,4 +1,4 @@
-### Tutor Scheduler Pro
+## Tutor Scheduler Pro
 
 Live Demo:
 https://tutor-scheduler-pro-mauve.vercel.app/
@@ -11,7 +11,7 @@ Deployment: Vercel (Frontend) + Railway (Backend & DB)
 
 ⸻
 
-Overview
+## Overview
 
 Tutor Scheduler Pro is a full-stack tutor booking platform that allows providers to create and manage tutoring sessions while customers can browse and book available classes.
 
@@ -19,7 +19,7 @@ The application implements secure JWT authentication, role-based authorization, 
 
 ⸻
 
-Features
+## Features
 
 Authentication & Authorization
 	•	JWT-based authentication
@@ -46,7 +46,7 @@ Database Architecture
 
 ⸻
 
-Tech Stack
+## Tech Stack
 
 Frontend
 	•	React (Vite)
@@ -68,7 +68,7 @@ Deployment
 
 ⸻
 
-Installation (Local Development)
+## Installation (Local Development)
 
 1. Clone the repository:
 git clone https://github.com/SajedAtwa/Tutor-SchedulerPro.git
@@ -89,7 +89,7 @@ cd client
 npm install
 npm run dev
 
-Author
+## Author
 
 Sajed Atwa
 Full-Stack Developer
