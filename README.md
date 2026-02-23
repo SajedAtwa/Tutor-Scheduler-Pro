@@ -94,7 +94,6 @@ npm run dev
 Sajed Atwa
 Full-Stack Developer
 
-GitHub: https://github.com/SajedAtwa
 LinkedIn: https://www.linkedin.com/in/sajedatwa/
 
 
