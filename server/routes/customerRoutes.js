@@ -1,3 +1,4 @@
+// server/routes/customerRoutes.js
 const express = require('express');
 const router = express.Router();
 
@@ -15,21 +16,21 @@ router.post('/login', customerController.loginCustomer);
 router.get(
   '/classes/:serviceType',
   authMiddleware,
-  roleMiddleware(['customer']),
+  roleMiddleware('customer'),
   customerController.getClassOptions
 );
 
 router.get(
   '/sessions/:classType',
   authMiddleware,
-  roleMiddleware(['customer']),
+  roleMiddleware('customer'),
   customerController.getSessionOptions
 );
 
 router.post(
   '/payment',
   authMiddleware,
-  roleMiddleware(['customer']),
+  roleMiddleware('customer'),
   customerController.processPayment
 );
 
@@ -38,4 +39,3 @@ router.use(notFound);
 router.use(errorHandler);
 
 module.exports = router;
-
