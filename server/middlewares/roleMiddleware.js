@@ -1,28 +1,20 @@
-// const roleMiddleware = (allowedRoles) => {
-//     return (req, res, next) => {
-//       if (req.user && allowedRoles.includes(req.user.role)) {
-//         next(); // Continue to the next middleware if the role is allowed
-//       } else {
-//         // If the user role is not in the allowed roles, return an error
-//         res.status(403).json({ message: "Access denied. You do not have the necessary permissions." });
-//       }
-//     };
-//   };
-  
-//   module.exports = roleMiddleware
-
-const roleMiddleware = (allowedRoles) => {
+// server/middlewares/roleMiddleware.js
+module.exports = (...allowedRoles) => {
   return (req, res, next) => {
-      // Assuming the role might be nested under 'provider' or 'customer', etc.
-      const userRole = req.user && req.user.provider ? req.user.provider.role : null;
+    // req.user is the decoded JWT (set by authMiddleware)
+    const role =
+      req.user?.customer?.role ||
+      req.user?.provider?.role ||
+      req.user?.role;
 
-      if (userRole && allowedRoles.includes(userRole)) {
-          next(); // Continue to the next middleware if the role is allowed
-      } else {
-          // If the user role is not in the allowed roles, return an error
-          res.status(403).json({ message: "Access denied. You do not have the necessary permissions." });
-      }
+    if (!role) {
+      return res.status(403).json({ message: "Forbidden: role not found on token." });
+    }
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({ message: "Forbidden: insufficient permissions." });
+    }
+
+    next();
   };
 };
-
-module.exports = roleMiddleware;
