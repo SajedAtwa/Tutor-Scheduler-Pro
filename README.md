@@ -1,4 +1,4 @@
-Tutor Scheduler Pro
+### Tutor Scheduler Pro
 
 Live Demo:
 https://tutor-scheduler-pro-mauve.vercel.app/
