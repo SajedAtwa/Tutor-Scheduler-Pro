@@ -71,7 +71,7 @@ Deployment
 ## Installation (Local Development)
 
 1. Clone the repository:
-git clone https://github.com/SajedAtwa/Tutor-SchedulerPro.git
+git clone https://github.com/SajedAtwa/Tutor-Scheduler-Pro.git
 cd Tutor-SchedulerPro
 2.  Install backend dependencies:
 npm install
